@@ -1,3 +1,6 @@
 .vscode/launch.json
 apod/
 .DS_Store
+modernpython
+.vscode/.ropeproject/objectdb
+__pycache__
