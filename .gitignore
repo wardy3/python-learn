@@ -1,6 +1,6 @@
-.vscode/launch.json
-apod/
+~*.xlsx
+.vscode
 .DS_Store
 modernpython
-.vscode/.ropeproject/objectdb
 __pycache__
+crap.log
