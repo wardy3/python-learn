@@ -20,6 +20,7 @@ def maths():
     w = 2 * a + 2 + a**2
     x = 7 * a + 7 + a**7
 
-    print(u,v,w,x)
+    print(u, v, w, x)
+
 
 maths()
