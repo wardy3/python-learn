@@ -72,14 +72,20 @@ for num_chosen in prize.keys():
     print(f"Average win for picking {num_chosen:2d} numbers is "
           f"${average_win:4.2f}")
 
+
 # Graph it
-pyplot.bar(plot_x, plot_y)
-pyplot.xticks(rotation=90)
-y_tick = ticker.StrMethodFormatter('${x:,.02f}')  # Format y axis as currency
-pyplot.gca().yaxis.set_major_formatter(y_tick)
-pyplot.xlabel('numbers chosen')
-pyplot.ylabel('average return for $1 bet')
-pyplot.title('Estimated Keno returns')
-pyplot.margins(0.2)
-pyplot.subplots_adjust(bottom=0.25)
-pyplot.show()
+def plot_it(plot_x, plot_y):
+    pyplot.bar(plot_x, plot_y)
+    pyplot.xticks(rotation=90)
+    y_tick = ticker.StrMethodFormatter(
+        '${x:,.02f}')  # Format y axis as currency
+    pyplot.gca().yaxis.set_major_formatter(y_tick)
+    pyplot.xlabel('numbers chosen')
+    pyplot.ylabel('average return for $1 bet')
+    pyplot.title('Estimated Keno returns')
+    pyplot.margins(0.2)
+    pyplot.subplots_adjust(bottom=0.25)
+    pyplot.show()
+
+
+plot_it(plot_x, plot_y)
