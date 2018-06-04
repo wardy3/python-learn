@@ -1,11 +1,10 @@
-from random import *
-from statistics import *
+from random import sample
+from statistics import median
 from collections import *
 
-r = 1000000
+r = 100000
 
-
-def trial(): return r // 4 < median(sample(range(r), 5)) < 3 * r // 4
+def trial(): return r // 4 < median(sample(range(r), 5)) <= 3 * r // 4
 
 
 print(sum(trial() for i in range(r)) / r)
