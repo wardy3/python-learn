@@ -1,4 +1,4 @@
-f = open("countries.txt","r")
+f = open("countries.txt", "r")
 
 countries = []
 
