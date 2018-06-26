@@ -8,3 +8,5 @@ apod
 .mypy_cache/3.6
 myob.txt
 myob.tsv
+Spend Money Export
+*.swp
