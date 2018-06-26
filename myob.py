@@ -20,7 +20,6 @@ with open('myob.txt', 'w', newline='') as importfile:
     fieldnames = ['Cheque Account', 'Cheque #', 'Date', 'Inclusive', 'Co./Last Name',
                   'Addr 1 - Line 1', 'Memo', 'Allocation Account #', 'Ex-Tax Amount', 'Inc-Tax Amount', 'Tax Amount', 'Tax Code', 'Delivery Status']
 
-    # myob_dialect = myob()
     writer = csv.DictWriter(
         importfile, fieldnames=fieldnames, dialect='myob')
     writer.writeheader()
@@ -34,7 +33,7 @@ with open('myob.txt', 'w', newline='') as importfile:
             # pp.pprint(row)
 
             from_ac, date, company, memo, alloc_ac, amount_inc, tax_code, manual = [
-                row[field] for field in ('MYOB a/c', 'Date', 'Narrative', 'Memo', 'alloc a/c', 'Debit Amount', 'tax code', 'manual')]
+                row.get(field, 'missing') for field in ('MYOB a/c', 'Date', 'Narrative', 'Memo', 'alloc a/c', ' Debit Amount ', 'tax code', 'manual')]
 
             # Skip some rows
             if memo == 'Ignore - other half':
@@ -43,11 +42,13 @@ with open('myob.txt', 'w', newline='') as importfile:
                 continue
 
             # Tidy some formatting
-            # XXX print(f"got amount as <{amount_inc}> ", end='')
+            # print(f"got amount as <{amount_inc}> ", end='')
             amount_inc_no_punc = re.sub(r'[^0-9.]', '', amount_inc)
-            # XXX print(f"after no punc amount is <{amount_inc_no_punc}>")
+            # print(f"after no punc amount is <{amount_inc_no_punc}>")
 
             if amount_inc_no_punc == '':
+                # print(
+                #    f"Skipping with amount of $0 {pp.pformat(row)}", file=sys.stderr)
                 continue
                 # XXX amount_inc_no_punc = '0'
 
@@ -66,6 +67,7 @@ with open('myob.txt', 'w', newline='') as importfile:
                 chqnum = chqnum + chr(tiebreak+ord('a')-1)
             else:
                 chqnum_tiebreak[chqnum] = 1
+            # print(f"chqnum {chqnum}")
 
             if tax_code in ('GST'):
                 amount_ex = float(amount_inc_no_punc) * 10 / 11
