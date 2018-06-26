@@ -6,3 +6,5 @@ __pycache__
 crap.log
 apod
 .mypy_cache/3.6
+myob.txt
+myob.tsv
