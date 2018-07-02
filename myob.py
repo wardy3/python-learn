@@ -8,6 +8,9 @@ import pprint
 
 pp = pprint.PrettyPrinter(indent=4)
 
+# TODO 20/12/16 transaction was 1c out -- 1136.35 went to 1136.34
+# TODO 29/12/17 1c came in as $1
+
 
 def amount_as_cents(amount: str)->int:
     """ Convert variously formatted strings into cents
