@@ -5,3 +5,11 @@ modernpython
 __pycache__
 crap.log
 apod
+.mypy_cache/3.6
+myob.txt
+myob.tsv
+Spend Money Export
+*.swp
+Receive Money Export
+myob-receive.txt
+myob-spend.txt
