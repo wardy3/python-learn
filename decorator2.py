@@ -6,7 +6,7 @@ class Decorator(object):
 
     def __call__(self, *args, **kwargs):
         print(f"call this with args <{args}> kwargs <{kwargs}>")
-        self.f(self2, *args, **kwargs)
+        self.f(self, *args, **kwargs)
 
 
 class test(object):
