@@ -11,6 +11,11 @@ class wardy():
 
 
 class record(wardy):
+    def __init__(self):
+        print(f"nothing much in record init")
+        print(f"oh well, let's pass it up the line")
+        super().__init__()
+
     def __setattr__(self, var, value):
         print(f"trying to set var {var}")
         if var not in ("x", "y", "z"):
