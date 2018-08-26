@@ -22,9 +22,7 @@ def prime_factors(n):
 def proper_divisors(n):
     factors = set()
     for i in range(1, n):
-        if n % i:
-            pass
-        else:
+        if not n % i:
             factors.add(i)
     return factors
 
@@ -53,19 +51,26 @@ for n in range(start, stop+1):
     # factors = proper_divisors(n)
     ali_sum = aliquot(n)
     if ali_sum == 1:
-        num_class = 'prime'
+        number_class = 'prime'
     elif ali_sum == n:
-        num_class = 'perfect'
+        number_class = 'perfect'
     elif ali_sum > n:
-        num_class = 'abundant'
+        number_class = 'abundant'
     elif ali_sum < n:
-        num_class = 'deficient'
+        number_class = 'deficient'
     else:
         raise ValueError
 
-    stats[num_class] += 1
+    stats[number_class] += 1
     stats['total'] += 1
 
     print(
-        f"n {n:8d}\tali {ali_sum:8d}\t{num_class:9s}"
-        f"\t{stats[num_class]*100/stats['total']:5.1f}%")
+        f"n {n:8d}\tali {ali_sum:8d}\t{number_class:9s}"
+    )
+    #   f"\t{stats[number_class]*100/stats['total']:5.1f}%")
+
+total = stats.pop('total')
+
+for number_class in stats:
+    print(f"{number_class:10s}{stats[number_class]*100/total:5.1f}%")
+# print(stats)
