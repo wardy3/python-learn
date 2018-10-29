@@ -11,7 +11,7 @@ class Deck(object):
     def shuffle(self):
         suits = [ "Spades", "Hearts", "Clubs", "Diamonds" ]
         ranks = [ "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack",
-                "Queen", "King", "Ace" ]
+            "Queen", "King", "Ace" ]
 
         self.cards = []
 
