@@ -1,15 +1,64 @@
-from typing import Tuple
+""" Convert Excel sheet into MYOB import format
+"""
+
+# Standard library imports
+import argparse
+from collections import defaultdict
 import csv
 from datetime import datetime
-from collections import defaultdict
+import getpass
+import logging
+import os
+import pprint
 import re
 import sys
-import pprint
+from typing import Tuple
 
+logger = logging.getLogger(__name__)  # Make global
 pp = pprint.PrettyPrinter(indent=4)
 
 # TODO 20/12/16 transaction was 1c out -- 1136.35 went to 1136.34
 # TODO 29/12/17 1c came in as $1
+
+
+def parse_args(args):
+    """ Parse command line arguments
+    """
+
+    parser = argparse.ArgumentParser(
+        description='Convert copy/paste Excel data into MYOB import format')
+
+    parser.add_argument('--tsv', default='myob.tsv',
+                        help='Tab separated file with full transaction info')
+
+    parser.add_argument(
+        '--loglevel',
+        '-L',
+        default='info',
+        action='store',
+        help='logging output level')
+    parser.add_argument(
+        '--logfile', action='store', help='logging output file')
+
+    return parser.parse_args(args)
+
+
+def set_logging(loglevel, logfile):
+    """ Set up logging
+    """
+
+    logging_dict = {'format': '%(asctime)s - %(levelname)s - %(message)s'}
+    if loglevel:
+        numeric_level = getattr(logging, loglevel.upper(), None)
+        if not numeric_level:
+            raise ValueError(f"Invalid log level {loglevel}")
+        logging_dict['level'] = numeric_level
+    if logfile:
+        logging_dict['filename'] = logfile
+
+    logging.basicConfig(**logging_dict)
+
+    return logging.getLogger(__name__)
 
 
 def amount_as_cents(amount: str)->int:
@@ -40,11 +89,11 @@ def amount_as_cents(amount: str)->int:
         d, c = match.groups(default='0')
         if d == '':
             d = '0'
-        # print(f"got {d} dollars and {c} cents")
         c = round(float(c), 2)
-        # print(f"rounded cents to {c}")
+        dc = int((int(d) + c) * 100)
+        logger.debug(f"converted {amount} to {dc}")
         # TODO horrible
-        return int((int(d) + c) * 100)
+        return dc
     else:
         raise ValueError(f"Can't recognise {amount} as currency")
 
@@ -98,10 +147,15 @@ def calculate_tax(amount_inc_cents: int, tax_code: str) -> Tuple[int, int]:
 def format_money(amount_cents: int)->str:
     """ Given an amount in cents (eg 5412) return a money decimal (eg 54.12)
     """
-    return re.sub(r'(\d\d)$', r'.\1', str(amount_cents))
+
+    return f"{int(amount_cents)/100:3.2f}"
 
 
-def main():
+def main(args):
+    args = parse_args(args)
+
+    logger = set_logging(args.loglevel, args.logfile)
+    logger.info(f"Starting {CMD_SHORT}...")
 
     # Set up Tab-separated output characteristics
     csv.register_dialect('myob', lineterminator='\r', delimiter='\t')
@@ -123,15 +177,19 @@ def main():
             receivefile, fieldnames=receive_money, dialect='myob')
         receive_writer.writeheader()
 
-        with open('myob.tsv', newline='') as csvfile:
+        logger.info('Created MYOB import files')
+
+        with open(args.tsv, newline='') as csvfile:
             reader = csv.DictReader(csvfile, dialect='excel-tab')
 
+            logger.info(f"Reading TSV file {args.tsv}")
             for row in reader:
                 from_ac, date, company, memo, alloc_ac, dr_amount_inc, cr_amount_inc,  tax_code, manual = [
                     row.get(field, 'missing') for field in ('MYOB a/c', 'Date', 'Narrative', 'Memo', 'alloc a/c',
                                                             ' Debit Amount ', ' Credit Amount ', 'tax code', 'manual')]
 
-                print(f"\ndate {date}\tmemo {memo}", end="\t")
+                logger.info(f"processing tran: date {date} memo {memo} ac {alloc_ac} "
+                            f"cr {cr_amount_inc} dr {dr_amount_inc}")
 
                 # Skip some rows marked as not to be processed
                 if memo == 'Ignore - other half':
@@ -168,7 +226,8 @@ def main():
                 tax_amount = format_money(tax_amount_cents)
 
                 if is_debit:
-                    print(f"debit", end="")
+                    logger.debug(f"writing -> date {date}\tmemo {memo}\tdebit")
+
                     spend_writer.writerow({'Cheque Account': from_ac, 'Cheque #': transaction_id, 'Date': date,
                                            'Inclusive': 'X',  'Addr 1 - Line 1': company, 'Memo': memo,
                                            'Ex-Tax Amount': amount_inc, 'Inc-Tax Amount': amount_inc,  'Delivery Status': 'A', })
@@ -177,7 +236,9 @@ def main():
                                            'Ex-Tax Amount': amount_ex, 'Inc-Tax Amount': amount_inc, 'Tax Amount': tax_amount, 'Tax Code': tax_code, })
                     print('\r', end="", file=spendfile)
                 else:
-                    print(f"credit", end="")
+                    logger.debug(
+                        f"writing -> date {date}\tmemo {memo}\tcredit")
+
                     receive_writer.writerow({'Deposit Account': from_ac, 'ID #': transaction_id, 'Date': date,
                                              'Inclusive': 'X',   'Memo': memo,
                                              'Ex-Tax Amount': amount_inc, 'Inc-Tax Amount': amount_inc, })
@@ -188,8 +249,18 @@ def main():
 
                 # TODO Look at Decimal for these figures
 
-    print(f"\n\nAll done")
+    logger.info('Complete...')
 
 
 if __name__ == '__main__':
-    main()
+    CMD = os.path.basename(sys.argv[0])
+    CMD_PATH = os.path.abspath(os.path.dirname(sys.argv[0]))
+    CMD_SHORT = os.path.splitext(CMD)[0]
+
+    now = datetime.now()
+    CURR_DATE = now.isoformat()
+    CURR_DATE_FMT = now.strftime('%c')
+
+    CURR_USER = getpass.getuser()
+
+    main(sys.argv[1:])
