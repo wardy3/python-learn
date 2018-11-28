@@ -131,6 +131,8 @@ def main():
                     row.get(field, 'missing') for field in ('MYOB a/c', 'Date', 'Narrative', 'Memo', 'alloc a/c',
                                                             ' Debit Amount ', ' Credit Amount ', 'tax code', 'manual')]
 
+                print(f"\ndate {date}\tmemo {memo}", end="\t")
+
                 # Skip some rows marked as not to be processed
                 if memo == 'Ignore - other half':
                     continue
@@ -166,6 +168,7 @@ def main():
                 tax_amount = format_money(tax_amount_cents)
 
                 if is_debit:
+                    print(f"debit", end="")
                     spend_writer.writerow({'Cheque Account': from_ac, 'Cheque #': transaction_id, 'Date': date,
                                            'Inclusive': 'X',  'Addr 1 - Line 1': company, 'Memo': memo,
                                            'Ex-Tax Amount': amount_inc, 'Inc-Tax Amount': amount_inc,  'Delivery Status': 'A', })
@@ -174,6 +177,7 @@ def main():
                                            'Ex-Tax Amount': amount_ex, 'Inc-Tax Amount': amount_inc, 'Tax Amount': tax_amount, 'Tax Code': tax_code, })
                     print('\r', end="", file=spendfile)
                 else:
+                    print(f"credit", end="")
                     receive_writer.writerow({'Deposit Account': from_ac, 'ID #': transaction_id, 'Date': date,
                                              'Inclusive': 'X',   'Memo': memo,
                                              'Ex-Tax Amount': amount_inc, 'Inc-Tax Amount': amount_inc, })
@@ -184,7 +188,7 @@ def main():
 
                 # TODO Look at Decimal for these figures
 
-    print(f"All done")
+    print(f"\n\nAll done")
 
 
 if __name__ == '__main__':

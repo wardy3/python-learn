@@ -52,7 +52,7 @@ def prize_playing(num_selected):
 
 
 # Number of games per selected
-n = 100_000  # _000
+n = 10_000  # _000
 
 plot_x = []
 plot_y = []
