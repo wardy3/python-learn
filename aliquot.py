@@ -1,5 +1,6 @@
-import sys
 from collections import defaultdict
+import sys
+from typing import Union
 
 
 def prime_factors(n):
@@ -35,19 +36,21 @@ def untouchable(n):
     pass
 
 
+start: Union[int, str]
+stop: Union[int, str]
 if (len(sys.argv) == 1):
     start, stop = 1, 20
 elif (len(sys.argv) == 2):
     start, stop = 1, sys.argv[1]
 else:
-    start, stop = sys.argv[1: 3]
+    start, stop = sys.argv[1:3]
 
-stats = defaultdict(int)
+stats: dict = defaultdict(int)
 
 start = int(start)
 stop = int(stop)
 
-for n in range(start, stop+1):
+for n in range(start, stop + 1):
     # factors = proper_divisors(n)
     ali_sum = aliquot(n)
     if ali_sum == 1:
@@ -64,9 +67,7 @@ for n in range(start, stop+1):
     stats[number_class] += 1
     stats['total'] += 1
 
-    print(
-        f"n {n:8d}\tali {ali_sum:8d}\t{number_class:9s}"
-    )
+    print(f"n {n:8d}\tali {ali_sum:8d}\t{number_class:9s}")
     #   f"\t{stats[number_class]*100/stats['total']:5.1f}%")
 
 total = stats.pop('total')
